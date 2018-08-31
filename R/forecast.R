@@ -22,8 +22,8 @@ sim_speed <- simulate(speed_model, future = FALSE)
 sim_direc <- simulate(direc_model, future = FALSE)
 
 # Save simulated
-write.table(sim_speed, file="../data/simulated/speed.csv")
-write.table(sim_direc, file="../data/simulated/direction.csv")
+write.csv(x=sim_speed, file="../data/simulated/speed.csv")
+write.csv(x=sim_direc, file="../data/simulated/direction.csv")
 
 plot(sim_speed, col = 'red')
 plot(sim_direc, col = 'green')
