@@ -1,20 +1,21 @@
 library('ggplot2')
+library('forecast')
 library('tseries')
 theme_set(theme_gray())
 
 # Read data
-data <- read.csv("../data/originald08.csv", header=TRUE)
-data <- data[, c(1, 5, 8)]
+data <- read.csv("../data/d05a.csv", header=TRUE)
+data <- data[, c(1, 5, 8)] # Use datetime, speed and direction columns
 colnames(data) <- c("timestamp", "speed", "direction")
-data$timestamp <- as.POSIXct(data$timestamp)
+data$timestamp <- as.POSIXct(data$timestamp, format='%Y-%m-%d %H:%M')
 
-# Data description
+# All data description
 summary(data[, 2:3])
 
-# Histograms
+# Data's histograms
 qplot(data$speed,
       geom = "histogram",
-      xlab = "Speed",
+      xlab = "",
       fill = I("blue"),
       col = I("blue"),
       alpha=I(.5))
@@ -26,31 +27,47 @@ qplot(data$direction,
       col = I("blue"),
       alpha=I(.5))
 
-# Get data from 2017
-data_2017 <- subset(data, data$timestamp >= "2017-01-01")
+# Get january data
+jan <- subset(data, data$timestamp >= "2018-01-01" & data$timestamp < "2018-02-01")
+# Use first 30 days from January 2018 as train
+train <- subset(data, data$timestamp >= "2018-01-01" & data$timestamp < "2018-01-31")
+# Use day 31 from January 2018 as test
+test <- subset(data, data$timestamp >= "2018-01-31" & data$timestamp < "2018-02-01")
 
-# 30 minutes frequency
-data_2017_30 <- data_2017[seq(1, nrow(data_2017), 3), ]
+# Remove data unused
+rm(data)
 
-# Timeserie plot
-pspeed <- ggplot() + geom_line(data=data_2017_30, aes(x=timestamp, y=speed), color = "blue") + xlab("Timestamp") + ylab("Speed")
-pspeed
+# January data description
+summary(jan[, 2:3])
 
-# ACF and PACF
-speed_ACF <- Acf(data_2017_30$speed, plot = FALSE)
-plot(speed_ACF, main = "Speed Autocorrelation")
-speed_PACF <- Pacf(data_2017_30$speed, plot = FALSE)
-plot(speed_PACF, main = "Speed Partial Autocorrelation")
+# Histograms
+qplot(jan$speed,
+      geom = "histogram",
+      xlab = "",
+      fill = I("blue"),
+      col = I("blue"),
+      alpha=I(.5))
 
-# Timeserie plot
-pdirec <- ggplot() + geom_line(data=data_2017_30, aes(x=timestamp, y=direction), color = "blue") + xlab("Timestamp") + ylab("Direction")
-pdirec
+qplot(jan$direction,
+      geom = "histogram",
+      xlab = "",
+      fill = I("blue"),
+      col = I("blue"),
+      alpha=I(.5))
 
-# ACF and PACF
-direc_ACF <- Acf(data_2017_30$direction, plot = FALSE)
-plot(direc_ACF, main = "Direction Autocorrelation")
-direc_pacf <- Pacf(data_2017_30$direction, plot = FALSE)
-plot(direc_pacf, main = "Direction Partial Autocorrelation")
+# Timeseries plot
+# Speed 
+ggplot() + 
+  geom_line(data=jan, aes(x=timestamp, y=speed), color = "blue") + 
+  xlab("Timestamp") + 
+  ylab("Speed")
 
-# Save data
-write.csv(file="../data/2017_30min.csv", x=data_2017_30)
+# Direction
+ggplot() + 
+  geom_line(data=jan, aes(x=timestamp, y=direction), color = "blue") + 
+  xlab("Timestamp") + 
+  ylab("Direction")
+
+# Save data (included in data folder)
+#write.csv(file="../data/train_2018.csv", train, row.names=FALSE)
+#write.csv(file="../data/test_2018.csv", test, row.names=FALSE)
