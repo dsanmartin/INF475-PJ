@@ -10,11 +10,6 @@ train$timestamp <- as.POSIXct(train$timestamp, format='%Y-%m-%d %H:%M')
 ggAcf(train$speed, lag.max = 300, main = "")
 ggPacf(train$speed, lag.max = 150, main = "")
 
-speed_ACF <- acf(diff(train$speed, lag = 1), lag.max = 200, plot = FALSE)
-plot(speed_ACF, main = "Speed Autocorrelation")
-speed_PACF <- pacf(train$speed, lag.max = 200, plot = FALSE)
-plot(speed_PACF, main = "Speed Partial Autocorrelation")
-
 # Speed augmented Dickey-Fuller test
 adf.test(train$speed, alternative = "stationary")
 
@@ -49,20 +44,16 @@ direc_dec <- stl(direc_ts, s.window="periodic")
 plot(direc_dec)
 
 # Timeseries
-speed <- ts(data$speed, frequency = 24*60/10)
-direction <- ts(data$direction, frequency = 24*60/10)
+speed_train <- ts(train$speed, frequency = 24*60/10)
+direction_train <- ts(train$direction, frequency = 24*60/10)
 
-# speed_ts <- ts(data$speed, frequency = 24*60/10)
-# speed_dec <- stl(speed_ts, s.window="periodic")
-# deseasonal_speed <- seasadj(speed_dec)
+# Models
+speed_model <- Arima(speed_train, order=c(1,0,1),seasonal=c(0,1,0))
+speed_model
 
-# # Models
-# speed_model <- auto.arima(speed, seasonal=TRUE)#, D=1)
-# speed_model
-# 
-# direc_model <- auto.arima(direction, seasonal=TRUE)
-# direc_model
-# 
-# # Save models
-# save(speed_model, file="models/speed_arima_6.rda")
-# save(direc_model, file="models/direction_arima_6.rda")
+direc_model <- Arima(direction_train, order=c(1,0,2),seasonal=c(0,1,0))
+direc_model
+
+# Save models
+save(speed_model, file="models/speed_arima_7.rda")
+save(direc_model, file="models/direction_arima_7.rda")

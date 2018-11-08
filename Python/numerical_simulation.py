@@ -58,17 +58,24 @@ parameters = {
 #%%
 # Generate wildfires simulations
 #U_sim, B_sim = getWildfireSimulations(parameters, V, N_sim)
-U_sim = np.load('50Usim.npy')
-B_sim = np.load('50Bsim.npy')
+# Save simulations
+#np.save('../data/simulations/50Usim', U_sim)
+#np.save('../data/simulations/50Bsim', B_sim)
+# Load simulations
+U_sim = np.load('../data/simulations/50Usim.npy')
+B_sim = np.load('../data/simulations/50Bsim.npy')
 #%%
 # Plot a simulation
-sim = 3
-plotSimulation(X, Y, U_sim, B_sim, V, sim)
+sim = 25
+#plotSimulation(X, Y, U_sim, B_sim, V, sim)
+plotSimulationHorizontal(X, Y, U_sim, B_sim, V, sim, save=True)
 #%%
 # Statistics of numerical simulations
-tim = -1 # Select time of numerical simulation (0-9)
-plotStatsCI(U_sim, tim, 'Temperature')
-plotStatsCI(B_sim, tim, 'Fuel')
+tim = 0 # Select time of numerical simulation (0-9)
+per_ = True
+save_ = False
+plotStatsCI(U_sim, tim, 'Temperature', per=per_, save=save_)
+plotStatsCI(B_sim, tim, 'Fuel', per=per_, save=save_)
 #%%
 # Get fuel stats
 meanB, stdB, lloB, lluB = getSimStats(B_sim, -1)
@@ -85,7 +92,8 @@ print("Mean fuel at end", mean_end_B)
 print("Burnt %", burnt_per)
 
 #%%
-total_B = (np.asarray(Bsim[0,0]) > 0.2).sum()
+# Answer probabilities' questions
+total_B = (np.asarray(B_sim[0,0]) > 0.2).sum()
 mean_end_B = (np.asarray(meanB) <= 0.2).sum()
 burnt_per = (total_B - mean_end_B) / total_B * 100
 
@@ -94,6 +102,17 @@ plt.colorbar()
 print("Total initial fuel", total_B)
 print("Mean fuel at end", mean_end_B)
 print("Burnt %", burnt_per)
-
-
-
+#%%
+# Answer probabilities' questions
+per_fuel = np.zeros(N_sim)
+for i in range(N_sim):
+  #total_B = (np.asarray(B_sim[0,0]) > per).sum()
+  #end_B = (np.asarray(B_sim[i,-1]) <= per).sum()
+  total_B = (np.asarray(B_sim[0,0])).sum()
+  end_B = (np.asarray(B_sim[i,-1])).sum()
+  per_fuel[i] = (total_B - end_B) / total_B
+#%%
+per = 0.03
+print((per_fuel > per).sum() / N_sim)
+#%%
+print((U_sim > 9).sum() / (50*10*128*128))
