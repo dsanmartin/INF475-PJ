@@ -63,7 +63,13 @@ ggplot(res_speed, aes(x = x)) +
   stat_function(fun = dnorm, args = list(mean = mean(res_speed$x), sd = sd(res_speed$x)))
 # Q-Q normal for residual
 qqplot.data(res_speed$x)
-Box.test(residuals(speed_model), type="Ljung-Box")
+# From Box.test documentation:
+# These tests are sometimes applied to the residuals from an ARMA(p, q) fit, 
+# in which case the references suggest a better approximation to the null-hypothesis 
+# distribution is obtained by setting fitdf = p+q, provided of course that lag > fitdf.
+# In this case, for speed p=1 and q=1
+Box.test(residuals(speed_model), type="Ljung-Box", fitdf=2, lag=144)
+
 
 
 # Residual Histogram Direction
@@ -80,7 +86,7 @@ ggplot(res_direc, aes(x = x)) +
   stat_function(fun = dnorm, args = list(mean = mean(res_direc$x), sd = sd(res_direc$x)))
 # Q-Q normal for residual
 qqplot.data(res_direc$x)
-Box.test(residuals(direc_model), type="Ljung-Box")#, fitdf = 2, lag = 1)
+Box.test(residuals(direc_model), type="Ljung-Box", fitdf = 3, lag = 144)
 
 # Unit root
 plot(speed_model)
